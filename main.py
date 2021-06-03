@@ -71,9 +71,6 @@ def boardGeneration(start, end, gridL, gridW):
     for i in range(0,len(board)-4):
         board[len(board)-i-1][i+3] = 1
 
-    board[1][9] = 0
-    board[5][5] = 0
-    board[7][6] = 0
     for i in range(0,len(board)):
         for j in range(0,len(board[0])):
             if board[i][j] == 0:
@@ -89,7 +86,7 @@ def getNeighbours(n, board, prev):
     row = n.getRow()
     col = n.getCol()
 
-    if row > 0 and row < len(board)-1 and col > 0 and col < len(board)-1:
+    if row > 0 and row < len(board)-1 and col > 0 and col < len(board[0])-1:
         if(not(board[row+1][col] in prev)):
             retValue.append(board[row + 1][col])
         if (not (board[row][col+1] in prev)):
@@ -108,12 +105,12 @@ def getNeighbours(n, board, prev):
             retValue.append(board[row-1][col])
         if (not (board[row][col + 1] in prev)):
             retValue.append(board[row][col+1])
-    elif row == len(board) - 1 and col == len(board)-1:
+    elif row == len(board) - 1 and col == len(board[0])-1:
         if (not (board[row - 1][col] in prev)):
             retValue.append(board[row-1][col])
         if (not (board[row][col - 1] in prev)):
             retValue.append(board[row][col - 1])
-    elif row == 0 and col == len(board)-1:
+    elif row == 0 and col == len(board[0])-1:
         retValue.append(board[row + 1][col])
         if (not (board[row][col - 1] in prev)):
             retValue.append(board[row][col - 1])
@@ -138,7 +135,7 @@ def getNeighbours(n, board, prev):
             retValue.append(board[row-1][col])
         if (not (board[row][col + 1] in prev)):
             retValue.append(board[row][col+1])
-    elif col == len(board)-1:
+    elif col == len(board[0])-1:
         if (not (board[row + 1][col] in prev)):
             retValue.append(board[row+1][col])
         if (not (board[row - 1][col] in prev)):
@@ -158,7 +155,7 @@ def paintBoard(canvas, gridL, gridW, boxL, board, start, end):
     # draw horizontal lines
 
     x1 = 0
-    x2 = boxL * gridL
+    x2 = boxL * gridW
     for k in range(0, boxL * gridL, boxL):
         y1 = k
         y2 = k
@@ -166,7 +163,7 @@ def paintBoard(canvas, gridL, gridW, boxL, board, start, end):
 
     # draw vertical lines
     y1 = 0
-    y2 = boxL * gridW
+    y2 = boxL * gridL
     for k in range(0, boxL * gridW, boxL):
         x1 = k
         x2 = k
@@ -191,21 +188,20 @@ def updateBoard(canvas, gridL, gridW, boxL, board, n, color):
 
 # pick your start and end node points here
 
-gridL = 11
-gridW = 11
+gridL = 15
+gridW = 20
 boxL = 50
 start = Node(0,0)
-end = Node(4,8)
+end = Node(14,10)
 
 # create the board as specified in the boardGeneration method
 board = boardGeneration(start, end, gridL, gridW)
-
 
 root = tk.Tk()
 root.title("Map")
 
 # create the drawing canvas
-canvas = tk.Canvas(root, width=boxL*gridL, height=boxL*gridW, bg='white')
+canvas = tk.Canvas(root, width=boxL*gridW, height=boxL*gridL, bg='white')
 canvas.pack()
 
 paintBoard(canvas, gridL, gridW, boxL, board, start, end)
