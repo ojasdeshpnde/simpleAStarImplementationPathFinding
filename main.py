@@ -1,6 +1,7 @@
 import math
 import tkinter as tk
 import time
+import random
 # Creates a node object with a few properties which will come in handy.
 class Node:
     def __init__(self, row, col):
@@ -63,13 +64,21 @@ def boardGeneration(start, end, gridL, gridW):
             temp.append(0)
         board.append(temp)
 
-    for i in range(1, len(board)):
-        board[len(board)-1 - i][i] = 1
+
     board[start.getRow()][start.getCol()] = start
     board[end.getRow()][end.getCol()] = end
 
-    for i in range(0,len(board)-4):
-        board[len(board)-i-1][i+3] = 1
+    for i in range(0,len(board)):
+        for j in range(0,len(board[0])):
+            if board[i][j] != start and board[i][j] != end and random.random() <0.2:
+                board[i][j] = 1
+    # for i in range(1, len(board)):
+    #     if random.random() > 0.2:
+    #         board[len(board)-1 - i][i] = 1
+    #
+    # for i in range(0,len(board)-4):
+    #     if random.random() > 0.2:
+    #         board[len(board)-i-1][i+3] = 1
 
     for i in range(0,len(board)):
         for j in range(0,len(board[0])):
@@ -188,90 +197,87 @@ def updateBoard(canvas, gridL, gridW, boxL, board, n, color):
 
 # pick your start and end node points here
 
-gridL = 15
-gridW = 20
-boxL = 50
-start = Node(0,0)
-end = Node(14,10)
-
-# create the board as specified in the boardGeneration method
-board = boardGeneration(start, end, gridL, gridW)
-
-root = tk.Tk()
-root.title("Map")
-
-# create the drawing canvas
-canvas = tk.Canvas(root, width=boxL*gridW, height=boxL*gridL, bg='white')
-canvas.pack()
-
-paintBoard(canvas, gridL, gridW, boxL, board, start, end)
-
-
-# just to print the inital grid
-
-
-# prev is the list of all previously visited nodes. To make the walls not count as nodes, I just added it to prev so
-# 1 will not be considered a node.
-prev = []
-prev.append(1)
-
-# pQ is the priority queue which in this case is just a list but it works well enough
 pQ = []
+gridL = 30
+gridW = 40
+boxL = 20
+start = Node(0,0)
+end = Node(26,20)
+while(len(pQ) == 0):
+    # create the board as specified in the boardGeneration method
+    board = boardGeneration(start, end, gridL, gridW)
+    gridPrint(board, start, end)
 
-# gets a list of neighbours
-n = getNeighbours(start,board,prev)
-# each neighbour gets their distance calculated and added to the priority queue and have their links for previous nodes
-# set
-for i in range(0,len(n)):
-    n[i].setPathLen(start.getPathLen() + 1)
-    distance(n[i],end)
-    pQ.append(n[i])
-    n[i].setPreviousNode(start)
+    root = tk.Tk()
+    root.title("Map")
 
-# added to the list of previously visited nodes
-prev.append(start)
+    # create the drawing canvas
+    canvas = tk.Canvas(root, width=boxL*gridW, height=boxL*gridL, bg='white')
+    canvas.pack()
 
-#sorts the list based on the distances = euclidean distance + path length
-pQ.sort(key=lambda x:x.distance)
+    paintBoard(canvas, gridL, gridW, boxL, board, start, end)
 
 
-# repeats the above process until we find the end node. In the case that a path to end does not exist, you will get an
-# empty priority queue
-color = "green"
-pre = None
-while(len(pQ) > 0 and pQ[0]!=end):
-    cN = pQ[0]
-    del pQ[0]
-    n = getNeighbours(cN,board,prev)
+    # just to print the inital grid
+
+
+    # prev is the list of all previously visited nodes. To make the walls not count as nodes, I just added it to prev so
+    # 1 will not be considered a node.
+    prev = []
+    prev.append(1)
+
+    # pQ is the priority queue which in this case is just a list but it works well enough
+
+
+    # gets a list of neighbours
+    n = getNeighbours(start,board,prev)
+    # each neighbour gets their distance calculated and added to the priority queue and have their links for previous nodes
+    # set
     for i in range(0,len(n)):
-        n[i].setPathLen(cN.getPathLen()+1)
+        n[i].setPathLen(start.getPathLen() + 1)
         distance(n[i],end)
-        if not(n[i] in pQ):
-            pQ.append(n[i])
-        n[i].setPreviousNode(cN)
+        pQ.append(n[i])
+        n[i].setPreviousNode(start)
 
-    pQ.sort(key=lambda x: x.distance)
-    if True:
-        if cN != pre:
+    # added to the list of previously visited nodes
+    prev.append(start)
 
-            updateBoard(canvas, gridL, gridW, boxL, board, cN, color)
-            root.update()
-            time.sleep(0.1)
+    #sorts the list based on the distances = euclidean distance + path length
+    pQ.sort(key=lambda x:x.distance)
 
-    prev.append(cN)
-    pre = cN
 
-# prints either no path availaible or prints the path out.
-if len(pQ) == 0:
-    print("No Path availaible")
-else:
-    cN = end
-    while(cN != start):
-        if cN != end:
-            board[cN.getRow()][cN.getCol()] = "*"
-            updateBoard(canvas, gridL, gridW, boxL, board, cN, "blue")
-            root.update()
-            time.sleep(0.3)
-        cN = cN.getPrerviousNode()
+    # repeats the above process until we find the end node. In the case that a path to end does not exist, you will get an
+    # empty priority queue
+    color = "green"
+    pre = None
+    while(len(pQ) > 0 and pQ[0]!=end):
+        cN = pQ[0]
+        del pQ[0]
+        n = getNeighbours(cN,board,prev)
+        for i in range(0,len(n)):
+            n[i].setPathLen(cN.getPathLen()+1)
+            distance(n[i],end)
+            if not(n[i] in pQ):
+                pQ.append(n[i])
+            n[i].setPreviousNode(cN)
 
+        pQ.sort(key=lambda x: x.distance)
+        if True:
+            if cN != pre:
+
+                updateBoard(canvas, gridL, gridW, boxL, board, cN, color)
+                root.update()
+                time.sleep(0.00001)
+
+        prev.append(cN)
+        pre = cN
+
+cN = end
+while(cN != start):
+    if cN != end:
+        board[cN.getRow()][cN.getCol()] = "*"
+        updateBoard(canvas, gridL, gridW, boxL, board, cN, "blue")
+        root.update()
+        time.sleep(0.01)
+    cN = cN.getPrerviousNode()
 time.sleep(100)
