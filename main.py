@@ -1,4 +1,6 @@
 import math
+import tkinter as tk
+import time
 # Creates a node object with a few properties which will come in handy.
 class Node:
     def __init__(self, row, col):
@@ -53,11 +55,11 @@ def gridPrint(grid, start, end):
 # 3 = end
 # * = path
 # currently the board is 11 x 11 but you can change it and it should probably work still
-def boardGeneration(start, end):
+def boardGeneration(start, end, gridL, gridW):
     board = []
-    for i in range(0, 11):
+    for i in range(0, gridL):
         temp = []
-        for j in range(0, 11):
+        for j in range(0, gridW):
             temp.append(0)
         board.append(temp)
 
@@ -69,6 +71,9 @@ def boardGeneration(start, end):
     for i in range(0,len(board)-4):
         board[len(board)-i-1][i+3] = 1
 
+    board[1][9] = 0
+    board[5][5] = 0
+    board[7][6] = 0
     for i in range(0,len(board)):
         for j in range(0,len(board[0])):
             if board[i][j] == 0:
@@ -78,7 +83,7 @@ def boardGeneration(start, end):
 
 # just returns the surrounding nodes. In the future I might extend to doing diagonals so the majority of changes
 # will occurr here.
-# I know this method looks ugly but It just took 15 minutes to brute force and seems to work fine enough. 
+# I know this method looks ugly but It just took 15 minutes to brute force and seems to work fine enough.
 def getNeighbours(n, board, prev):
     retValue = []
     row = n.getRow()
@@ -149,15 +154,65 @@ def distance(c, e):
     c.setDistance(distance + c.getPathLen())
 
 
+def paintBoard(canvas, gridL, gridW, boxL, board, start, end):
+    # draw horizontal lines
+
+    x1 = 0
+    x2 = boxL * gridL
+    for k in range(0, boxL * gridL, boxL):
+        y1 = k
+        y2 = k
+        canvas.create_line(x1, y1, x2, y2)
+
+    # draw vertical lines
+    y1 = 0
+    y2 = boxL * gridW
+    for k in range(0, boxL * gridW, boxL):
+        x1 = k
+        x2 = k
+        canvas.create_line(x1, y1, x2, y2)
+
+    for i in range(0,len(board)):
+        for j in range(0,len(board[0])):
+            if board[i][j] == start:
+
+                canvas.create_rectangle(j*boxL,i*boxL,(j+1)*boxL,(i+1)*boxL, fill = 'orange')
+            elif board[i][j] == end:
+                canvas.create_rectangle(j*boxL,i*boxL,(j+1)*boxL,(i+1)*boxL, fill='red')
+            elif board[i][j] == 1:
+                canvas.create_rectangle(j*boxL,i*boxL,(j+1)*boxL,(i+1)*boxL, fill='black')
+
+
+
+def updateBoard(canvas, gridL, gridW, boxL, board, n, color):
+    canvas.create_rectangle(n.getCol()*boxL,n.getRow()*boxL,(n.getCol()+1)*boxL,(n.getRow()+1)*boxL, fill=color)
+
+
+
 # pick your start and end node points here
+
+gridL = 11
+gridW = 11
+boxL = 50
 start = Node(0,0)
-end = Node(9,9)
+end = Node(4,8)
 
 # create the board as specified in the boardGeneration method
-board = boardGeneration(start, end)
+board = boardGeneration(start, end, gridL, gridW)
+
+
+root = tk.Tk()
+root.title("Map")
+
+# create the drawing canvas
+canvas = tk.Canvas(root, width=boxL*gridL, height=boxL*gridW, bg='white')
+canvas.pack()
+
+paintBoard(canvas, gridL, gridW, boxL, board, start, end)
+
 
 # just to print the inital grid
-gridPrint(board, start, end)
+
 
 # prev is the list of all previously visited nodes. To make the walls not count as nodes, I just added it to prev so
 # 1 will not be considered a node.
@@ -169,13 +224,12 @@ pQ = []
 
 # gets a list of neighbours
 n = getNeighbours(start,board,prev)
-
 # each neighbour gets their distance calculated and added to the priority queue and have their links for previous nodes
 # set
 for i in range(0,len(n)):
     n[i].setPathLen(start.getPathLen() + 1)
     distance(n[i],end)
-    pQ.append(n[len(n)-1-i])
+    pQ.append(n[i])
     n[i].setPreviousNode(start)
 
 # added to the list of previously visited nodes
@@ -187,6 +241,8 @@ pQ.sort(key=lambda x:x.distance)
 
 # repeats the above process until we find the end node. In the case that a path to end does not exist, you will get an
 # empty priority queue
+color = "green"
+pre = None
 while(len(pQ) > 0 and pQ[0]!=end):
     cN = pQ[0]
     del pQ[0]
@@ -194,10 +250,20 @@ while(len(pQ) > 0 and pQ[0]!=end):
     for i in range(0,len(n)):
         n[i].setPathLen(cN.getPathLen()+1)
         distance(n[i],end)
-        pQ.append(n[len(n)-1-i])
+        if not(n[i] in pQ):
+            pQ.append(n[i])
         n[i].setPreviousNode(cN)
+
     pQ.sort(key=lambda x: x.distance)
+    if True:
+        if cN != pre:
+
+            updateBoard(canvas, gridL, gridW, boxL, board, cN, color)
+            root.update()
+            time.sleep(0.1)
+
     prev.append(cN)
+    pre = cN
 
 # prints either no path availaible or prints the path out.
 if len(pQ) == 0:
@@ -207,6 +273,9 @@ else:
     while(cN != start):
         if cN != end:
             board[cN.getRow()][cN.getCol()] = "*"
+            updateBoard(canvas, gridL, gridW, boxL, board, cN, "blue")
+            root.update()
+            time.sleep(0.3)
         cN = cN.getPrerviousNode()
 
-    gridPrint(board, start, end)
+time.sleep(100)
