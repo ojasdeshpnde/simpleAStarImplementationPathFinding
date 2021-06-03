@@ -70,7 +70,7 @@ def boardGeneration(start, end, gridL, gridW):
 
     for i in range(0,len(board)):
         for j in range(0,len(board[0])):
-            if board[i][j] != start and board[i][j] != end and random.random() <0.2:
+            if board[i][j] != start and board[i][j] != end and random.random() <0.3:
                 board[i][j] = 1
     # for i in range(1, len(board)):
     #     if random.random() > 0.2:
@@ -201,12 +201,20 @@ pQ = []
 gridL = 30
 gridW = 40
 boxL = 20
+
+eX = random.randint(0,gridL-1)
+eY = random.randint(0,gridW-1)
+while(eY < 20):
+    eY = random.randint(0, gridW - 1)
+
+while(eX < 10):
+    eX = random.randint(0, gridL - 1)
+
 start = Node(0,0)
-end = Node(26,20)
+end = Node(eX,eY)
 while(len(pQ) == 0):
     # create the board as specified in the boardGeneration method
     board = boardGeneration(start, end, gridL, gridW)
-    gridPrint(board, start, end)
 
     root = tk.Tk()
     root.title("Map")
@@ -271,6 +279,8 @@ while(len(pQ) == 0):
 
         prev.append(cN)
         pre = cN
+    if len(pQ) == 0:
+        root.destroy()
 
 cN = end
 while(cN != start):
