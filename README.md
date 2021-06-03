@@ -34,3 +34,6 @@ doing gui stuff. I do not know exactly how the gui works so its just a hot mess 
 
 I also realize now that I have quite a few redunduncies but I cannot bother going back to fix them because I don't care too much for wasted memory as it gets cleared 
 soon enough. 
+
+I do not know if python has a nice way of using a Priority Queue, I do not quite know what a Priority Queue really is, but it just sounds like a sorted list
+for the most part so that is what I have been using and it seems to work just fine. 
