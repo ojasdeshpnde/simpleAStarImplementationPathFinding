@@ -37,3 +37,5 @@ soon enough.
 
 I do not know if python has a nice way of using a Priority Queue, I do not quite know what a Priority Queue really is, but it just sounds like a sorted list
 for the most part so that is what I have been using and it seems to work just fine. 
+
+In the distance function, there might seem to be a random factor of 10 which is multiplied by the euclideian distance. This factor is to prioritize searching in the direction of the end goal. The more you increase this scalar constant, the more it prioritizes the direction rather than the raw path length. If you make this constant 0, you will just get an undirected search which is the same as dijkstra's algorithm. For a randomly generated map like this one, it is probably better to have a large constant (10 works well enough). If you really want to see the difference, make that constant 0 or 1 and then compare it to when the constant in 10 or higher. There is a significant difference in the runtime. Now there are certain graphs where a low constant value is desired but that can be a future avenue to explore. 
