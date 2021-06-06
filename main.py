@@ -157,7 +157,7 @@ def getNeighbours(n, board, prev):
 # assigns a "distance" value which is used in the priority queue
 def distance(c, e):
     distance = math.sqrt( (c.getRow()  - e.getRow()) * (c.getRow()  - e.getRow()) + (c.getCol()  - e.getCol()) * (c.getCol()  - e.getCol()))
-    c.setDistance(distance + c.getPathLen())
+    c.setDistance(10*distance + c.getPathLen())
 
 
 def paintBoard(canvas, gridL, gridW, boxL, board, start, end):
